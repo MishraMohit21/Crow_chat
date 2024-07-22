@@ -1,0 +1,67 @@
+# Ignore build output
+build/
+*.o
+*.out
+*.exe
+
+# Ignore databases
+*.db
+
+# Ignore compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Ignore static libraries
+*.a
+*.lib
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore Linux generated folders
+lost+found/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore logs
+*.log
+
+# Ignore system files
+Thumbs.db
+Desktop.ini
+
+# Ignore CMake build directories
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore VSCodium/VSCode settings
+.vscode/
+
+# Ignore backup files
+*.bak
+*.swp
+*~
+
+# Ignore shell script executables
+*.sh
+
+# Ignore generated header files
+*.gch
+
+# Ignore template specific files
+*.html
+*.css
+*.js
+
+# Ignore specific files and directories for this project
+/static/test.css
+/static/test.js
+/templates/test.html

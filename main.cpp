@@ -98,10 +98,19 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
         std::string username = req.url_params.get("username");
         cntx["username"] = username;
 
+        std::vector<crow::json::wvalue> json_chats;
+
         auto chats = get_user_chats(username);
         if (!chats.empty())
         {
-            cntx["chats"] =chats;
+            for (auto &chat : chats)
+            {   
+                // std::cout << "Chat detail:\n Name: " << chat.name << "\n";
+                json_chats.push_back(chat.to_json());
+            }
+            std::cout << json_chats[0].size() << "\n";
+            cntx["chats"] = std::move(json_chats);
+
         }
         return crow::response{page.render(cntx)};
     });

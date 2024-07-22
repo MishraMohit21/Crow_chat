@@ -1,3 +1,4 @@
+-- Table for storing user information
 CREATE TABLE IF NOT EXISTS Users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_name TEXT UNIQUE NOT NULL,
@@ -5,6 +6,7 @@ CREATE TABLE IF NOT EXISTS Users (
     user_email TEXT NOT NULL
 );
 
+-- Table for storing chat information
 CREATE TABLE IF NOT EXISTS Chats (
     chat_id INTEGER PRIMARY KEY AUTOINCREMENT,
     chat_name TEXT,
@@ -15,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Chats (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table for storing messages in chats
 CREATE TABLE IF NOT EXISTS Messages (
     message_id INTEGER PRIMARY KEY AUTOINCREMENT,
     chat_id INTEGER NOT NULL,
@@ -25,16 +28,12 @@ CREATE TABLE IF NOT EXISTS Messages (
     FOREIGN KEY (sender_id) REFERENCES Users(user_id)
 );
 
+-- Table to manage the many-to-many relationship between users and chats
+CREATE TABLE IF NOT EXISTS UserChats (
+    user_id INTEGER NOT NULL,
+    chat_id INTEGER NOT NULL,
+    PRIMARY KEY (user_id, chat_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (chat_id) REFERENCES Chats(chat_id)
+);
 
-
-INSERT INTO Users (user_name, user_password, user_email) VALUES ('user1', 'password1', 'user1hai@example.com');
-INSERT INTO Users (user_name, user_password, user_email) VALUES ('user2', 'password2', 'user2hai@example.com');
-
-
-INSERT INTO Chats (chat_name) VALUES ('Test_chat');
-
-SQLite version 3.37.2 2022-01-06 13:25:41
-Enter ".help" for usage hints.
-[?2004hsqlite> ^C[?2004l
-[?2004h^C[?2004l
-[?2004h^C[?2004l

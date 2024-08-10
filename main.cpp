@@ -112,6 +112,8 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
             cntx["chats"] = std::move(json_chats);
 
         }
+        cntx["chat_name"] = chats[0].name;
+        CROW_LOG_INFO << "Context data: " << cntx.dump();
         return crow::response{page.render(cntx)};
     });
 

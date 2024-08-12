@@ -1,4 +1,6 @@
 #include "include/Auth.h"
+#include "include/jwt.h"
+
 
 
 void crow_routes_ka_function(crow::SimpleApp &app) {
@@ -14,39 +16,52 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
         return page;
     });
 
-    CROW_ROUTE (app, "/login").methods(crow::HTTPMethod::POST) ([](const crow::request& req){
-        // auto page = crow::mustache::load_text("user_login.html");
-        // return page;
-
+    CROW_ROUTE(app, "/login").methods(crow::HTTPMethod::POST) ([](const crow::request& req){
         auto from_data = parse_form_data(req.body);
-
         auto username_it = from_data.find("username");
         auto password_it = from_data.find("password");
 
         if (username_it != from_data.end() && password_it != from_data.end()) {
-
             auto username = username_it->second;
             auto password = password_it->second;
 
             if (check_user_credentials(username, password)) {
+                std::string token = JWT::GenerateJWT(username);
 
                 crow::response res(302);
-                res.add_header("Location", "/dashboard?username=" + username);
+                res.add_header("Set-Cookie", "jwt=" + token);
+                res.add_header("Location", "/dashboard");
                 return res;
-                // return crow::response::redirect("/")
-            }
-            else{
-                crow::response res(302);
-                res.add_header("Location", "/login?error=Incorrect%20password");
-                return res;
-                // return crow::response{302, "Found", {{"Location", "/login?error=Incorrect%20password"}}};
             }
         }
-        else{
-            crow::response res(304);
-            res.add_header("Location", "/login");
-            return res;
+        return crow::response{302, "Incorrect credentials"};
+    });
+
+    // Verify JWT on /dashboard
+    CROW_ROUTE(app, "/dashboard") ([](const crow::request& req){
+        std::string jwt_token = req.get_header_value("Cookie");
+        std::cout << "JWT Token: " << jwt_token << std::endl;
+        std::string extra = "jwt=";
+        jwt_token.erase(0, extra.length());
+        std::cout << "Edited jwt string is: " << jwt_token << std::endl;
+
+        if (JWT::Verify_jwt(jwt_token)) {
+            auto page = crow::mustache::load("dashboard.html");
+            crow::mustache::context cntx;
+
+            std::string username = jwt::decode(jwt_token).get_payload_claim("username").as_string();
+            cntx["username"] = username;
+
+            auto chats = get_user_chats(username);
+            std::vector<crow::json::wvalue> json_chats;
+            for (auto &chat : chats) {
+                json_chats.push_back(chat.to_json());
+            }
+            cntx["chats"] = std::move(json_chats);
+
+            return crow::response{page.render(cntx)};
         }
+        return crow::response{403, "Forbidden"};
     });
 
     CROW_ROUTE (app, "/signup")([](){
@@ -90,32 +105,32 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
     });
 
 
-    CROW_ROUTE (app, "/dashboard") ([](const crow::request& req){
+    // CROW_ROUTE (app, "/dashboard") ([](const crow::request& req){
 
-        auto page = crow::mustache::load("dashboard.html");
-        crow::mustache::context cntx;
+    //     auto page = crow::mustache::load("dashboard.html");
+    //     crow::mustache::context cntx;
 
-        std::string username = req.url_params.get("username");
-        cntx["username"] = username;
+    //     std::string username = req.url_params.get("username");
+    //     cntx["username"] = username;
 
-        std::vector<crow::json::wvalue> json_chats;
+    //     std::vector<crow::json::wvalue> json_chats;
 
-        auto chats = get_user_chats(username);
-        if (!chats.empty())
-        {
-            for (auto &chat : chats)
-            {   
-                // std::cout << "Chat detail:\n Name: " << chat.name << "\n";
-                json_chats.push_back(chat.to_json());
-            }
-            std::cout << json_chats[0].size() << "\n";
-            cntx["chats"] = std::move(json_chats);
+    //     auto chats = get_user_chats(username);
+    //     if (!chats.empty())
+    //     {
+    //         for (auto &chat : chats)
+    //         {   
+    //             // std::cout << "Chat detail:\n Name: " << chat.name << "\n";
+    //             json_chats.push_back(chat.to_json());
+    //         }
+    //         std::cout << json_chats[0].size() << "\n";
+    //         cntx["chats"] = std::move(json_chats);
 
-        }
-        cntx["chat_name"] = chats[0].name;
-        CROW_LOG_INFO << "Context data: " << cntx.dump();
-        return crow::response{page.render(cntx)};
-    });
+    //     }
+    //     cntx["chat_name"] = chats[0].name;
+    //     CROW_LOG_INFO << "Context data: " << cntx.dump();
+    //     return crow::response{page.render(cntx)};
+    // });
 
 
 }

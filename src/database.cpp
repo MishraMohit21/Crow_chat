@@ -2,7 +2,7 @@
 
 
 
-const std::string DB_PATH = "./ChatApp.db";
+const std::string DB_PATH = "./db/ChatApp.db";
 
 sqlite3* open_database() {
 

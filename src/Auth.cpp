@@ -31,6 +31,7 @@ bool check_user_credentials (const std::string& username, const std::string pass
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         std::cout << "Query me dikkat hai\n";
+        std::cerr << "SQL Error: " << sqlite3_errmsg(db) << std::endl;
         close_database(db);
         return false;
     }

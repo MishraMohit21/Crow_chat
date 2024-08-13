@@ -1,6 +1,6 @@
 #include "include/Auth.h"
 #include "include/jwt.h"
-
+#include "include/Encrypt.h"
 
 
 void crow_routes_ka_function(crow::SimpleApp &app) {
@@ -29,7 +29,12 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
                 std::string token = JWT::GenerateJWT(username);
 
                 crow::response res(302);
-                res.add_header("Set-Cookie", "jwt=" + token);
+
+                std::string encToken = Encrpyt::EncryptJWT(token);
+
+                // res.add_header("Set-Cookie", "jwt=" + token);
+                res.add_header("Set-Cookie", "jwt=" + encToken + "; HttpOnly; Secure; SameSite=Strict; Path=/");  //Isse tum cookie ke storage se toh kar sakte ho but js console se nahi kar sakte ho
+
                 res.add_header("Location", "/dashboard");
                 return res;
             }
@@ -43,13 +48,15 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
         std::cout << "JWT Token: " << jwt_token << std::endl;
         std::string extra = "jwt=";
         jwt_token.erase(0, extra.length());
-        std::cout << "Edited jwt string is: " << jwt_token << std::endl;
+        // std::cout << "Edited jwt string is: " << jwt_token << std::endl;
 
-        if (JWT::Verify_jwt(jwt_token)) {
+        std::string decToken = Encrpyt::DecyptJWT(jwt_token);
+
+        if (JWT::Verify_jwt(decToken)) {
             auto page = crow::mustache::load("dashboard.html");
             crow::mustache::context cntx;
 
-            std::string username = jwt::decode(jwt_token).get_payload_claim("username").as_string();
+            std::string username = jwt::decode(decToken).get_payload_claim("username").as_string();
             cntx["username"] = username;
 
             auto chats = get_user_chats(username);

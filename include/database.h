@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../header.h"
 
 sqlite3* open_database();

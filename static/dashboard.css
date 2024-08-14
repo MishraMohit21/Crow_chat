@@ -1,0 +1,81 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header {
+  background-color: #007bff;
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+header a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 20px;
+}
+
+header a:hover {
+  text-decoration: underline;
+}
+
+main {
+  display: flex;
+  padding: 20px;
+}
+
+#chat-list {
+  width: 30%;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin-right: 20px;
+}
+
+#chat-list h2 {
+  margin-top: 0;
+}
+
+.chat-item {
+  margin-bottom: 10px;
+}
+
+.chat-link {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.chat-link:hover {
+  text-decoration: underline;
+}
+
+#chat-content {
+  width: 70%;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#messages {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.message strong {
+  display: block;
+}

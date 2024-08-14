@@ -1,0 +1,32 @@
+#chat-window {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  #chat-window-header {
+    background-color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #ccc;
+  }
+  
+  #chat-window-contents {
+    flex-grow: 1;
+    overflow: auto;
+  }
+  
+  #chat-window-footer {
+    background-color: #fff;
+    padding: 10px;
+    border-top: 2px solid #ccc;
+  }
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  

@@ -56,10 +56,10 @@ __pycache__/
 # Ignore generated header files
 *.gch
 
-# Ignore template specific files
-*.html
-*.css
-*.js
+# # Ignore template specific files
+# *.html
+# *.css
+# *.js
 
 # Ignore specific files and directories for this project
 /static/test.css

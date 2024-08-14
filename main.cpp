@@ -3,6 +3,7 @@
 #include "include/Encrypt.h"
 
 
+
 void crow_routes_ka_function(crow::SimpleApp &app) {
 
 
@@ -39,16 +40,16 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
                 return res;
             }
         }
-        return crow::response{302, "Incorrect credentials"};
+        crow::response res(302);
+        res.add_header("Location", "/login");
+        return res;
     });
 
     // Verify JWT on /dashboard
-    CROW_ROUTE(app, "/dashboard") ([](const crow::request& req){
+    CROW_ROUTE(app, "/dashboard")([](const crow::request& req) {
         std::string jwt_token = req.get_header_value("Cookie");
-        std::cout << "JWT Token: " << jwt_token << std::endl;
         std::string extra = "jwt=";
         jwt_token.erase(0, extra.length());
-        // std::cout << "Edited jwt string is: " << jwt_token << std::endl;
 
         std::string decToken = Encrpyt::DecyptJWT(jwt_token);
 
@@ -61,15 +62,54 @@ void crow_routes_ka_function(crow::SimpleApp &app) {
 
             auto chats = get_user_chats(username);
             std::vector<crow::json::wvalue> json_chats;
+
             for (auto &chat : chats) {
-                json_chats.push_back(chat.to_json());
+                crow::json::wvalue chat_data;
+                chat_data["chat_id"] = chat.id;
+                chat_data["chat_name"] = chat.name;
+
+                json_chats.push_back(chat_data);
             }
             cntx["chats"] = std::move(json_chats);
+            
+            // Check if a specific chat_id is requested
+            auto chat_id = req.url_params.get("chat_id");
+        
+            CROW_LOG_INFO << "Chat id of the clicked chat is " << chat_id;
+            if (chat_id) {
+                int chat_id_int = std::stoi(chat_id);
+                auto chat_messages = get_chat_messages(chat_id_int);
+                // auto chat_info = get_chat_info(chat_id_int);
+                // std::cout << "Size of Chats: " << chat_messages.size() << std::endl;
+                std::vector<crow::json::wvalue> messages_json;
+                int i = 0;
+                for (auto &message : chat_messages) 
+                {
+
+                    crow::json::wvalue message_data;
+                    message_data["message_id"] = message.m_id;
+                    message_data["sender_id"] = message.s_id;
+                    message_data["message_text"] = message.message;
+                    message_data["message_time"] = message.time;
+                    
+                    messages_json.push_back(message_data);
+                }
+
+
+                // cntx["current_chat_name"] = chat_info.name;
+                cntx["messages"] = std::move(messages_json);
+            } else {
+                // cntx["chat_name"] = "Select a chat";
+                cntx["messages"] = crow::json::wvalue{};
+            }
+
+            CROW_LOG_INFO << "Contex ka dump: " << cntx.dump();
 
             return crow::response{page.render(cntx)};
         }
         return crow::response{403, "Forbidden"};
     });
+
 
     CROW_ROUTE (app, "/signup")([](){
 

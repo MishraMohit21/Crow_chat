@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="static/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>{{ username }}</h2>
+
+            <input type="text" placeholder="Search chats">
+            <ul>
+                {{#chats}}
+                    <li class="chat-item">
+                        <a href="/dashboard?chat_id={{ chat_id }}">
+                            <div class="chat-avatar"></div>
+                            <div class="chat-info">
+                                <p class="chat-name">{{ chat_name }}</p>
+                            </div>
+                        </a>
+                    </li>
+                {{/chats}}
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h2>{{ chat_name }}</h2>
+            </div>
+            <div class="chat-window">
+                {{#messages}}
+                    <div class="message">
+                        <strong>{{ sender_id }}</strong>: {{ message_text }} <em>({{ message_time }})</em>
+                    </div>
+                {{/messages}}
+                {{^messages}}
+                    <p>Select a chat to see messages.</p>
+                {{/messages}}
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Type a message...">
+                <button type="submit">Send</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

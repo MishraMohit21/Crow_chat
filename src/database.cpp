@@ -87,3 +87,76 @@ crow::json::wvalue Chat::to_json() const {
         json["name"] = name;
         return json;
     }
+
+
+std::vector<Message> get_chat_messages(int chat_id) {
+    std::vector<Message> messages;
+    sqlite3* db = open_database();
+    if (!db) return messages;
+
+    std::string sql = R"(
+        SELECT m.message_id, m.sender_id, m.message_text, m.message_time
+        FROM Messages m
+        WHERE m.chat_id = ?
+        ORDER BY m.message_time ASC
+    )";
+
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+        close_database(db);
+        return messages;
+    }
+
+    sqlite3_bind_int(stmt, 1, chat_id);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        Message msg;
+        msg.m_id = sqlite3_column_int(stmt, 0);              // Fetch the message ID
+        msg.s_id = sqlite3_column_int(stmt, 1);       // Fetch the sender ID
+        msg.message = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        msg.time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        messages.push_back(msg);
+    }
+
+    sqlite3_finalize(stmt);
+    close_database(db);
+    return messages;
+}
+
+
+
+ChatInfo get_chat_info(int chat_id) {
+    ChatInfo chat_info;
+    sqlite3* db = open_database();
+    if (!db) return chat_info;
+
+    std::string sql = R"(
+        SELECT c.chat_id, c.chat_name, c.last_message_text, c.last_message_timestamp, c.is_group
+        FROM Chats c
+        WHERE c.chat_id = ?
+    )";
+
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+        close_database(db);
+        return chat_info;
+    }
+
+    sqlite3_bind_int(stmt, 1, chat_id);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        chat_info.id = sqlite3_column_int(stmt, 0); // Fetch the chat ID
+        chat_info.name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)); // Fetch the chat name
+        chat_info.last_message_text = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)); // Fetch last message text
+        chat_info.last_message_time = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)); // Fetch last message time
+        chat_info.is_group = sqlite3_column_int(stmt, 4) != 0; // Fetch whether the chat is a group
+    }
+
+    // CROW_LOG_DEBUG << 
+
+    sqlite3_finalize(stmt);
+    close_database(db);
+    return chat_info;
+}   

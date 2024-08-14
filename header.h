@@ -13,3 +13,20 @@ struct Chat {
 
     crow::json::wvalue to_json() const;
 };
+
+
+struct Message
+{
+    int m_id;
+    int s_id;
+    std::string message;
+    std::string time;
+};
+
+struct ChatInfo {
+    int id;                    // Unique identifier for the chat
+    std::string name;          // Name of the chat
+    std::string last_message_text; // Text of the last message
+    std::string last_message_time; // Timestamp of the last message
+    bool is_group;             // Whether the chat is a group chat
+};
